@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="charset" content="utf-8">
+        <title>List</title>
+        <style type="text/css">
+            #body {display:inline-flex;}
+
+            .fileDiv {width:20%;float:left;}
+            .fileDiv ul {display: inline-block;min-width: 50px;}
+            
+            .imgDiv {width:80%;}
+            .imgDiv li {list-style-type:none;float:left;display:inline-grid;margin:2px 10px 10px 2px;}
+            .imgDiv li span {font-size: 9px; color: #666666;}
+            .imgDiv .imgWidth {width:150px;height:80px}
+            .imgDiv .imgWidth img{width:auto;height:auto;max-width:100%;max-height:100%;}
+        </style>
+    </head>
+
+    <body>
+        <div id="body">
+                <div class="fileDiv">
+                        <ul>
+                            {{range $.files}}
+                            <li>
+                                <a href="{{.url}}">{{.name |html}}</a>
+                            </li>
+                            {{end}}
+                        </ul>
+                </div>
+
+                <div class="imgDiv">        
+                    <ul>
+                        {{range $.images}}
+                        <li>
+                            <div class="imgWidth">
+                                    <a href="{{.url}}" target="_blank"><img src="{{.url}}"></img></a>
+                            </div>
+                            <span>{{.name |html}}</span>
+                        </li>
+                        {{end}}
+                    </ul>
+                </div>
+            
+
+        </div>
+        
+        
+    </body>
+</html>
