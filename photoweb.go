@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	UPLOAD_DIR = "./uploads"
+	UPLOAD_DIR = "/home/xiao/document"
 )
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -77,9 +77,44 @@ func isExists(path string) bool {
 }
 func listHandler(w http.ResponseWriter, r *http.Request) {
 	_path := strings.TrimRight(r.FormValue("id"), "/") + "/"
-	fileInfoArr, err := ioutil.ReadDir("./uploads" + _path)
+	_pathSlice := strings.Split(_path, "/")
+	//fmt.Println(_pathSlice)
+	//sort.Reverse(_pathSlice)
+	_i := len(_pathSlice)
+	_j := _i
+	_break := false
+	for _i > 0 {
+		_i--
+		switch _pathSlice[_i] {
+		case "":
+			_j--
+			//fmt.Println(_j)
+		case "..":
+			_j = _j - 2
+		default:
+			_break = true
+			break
+		}
+		if _break {
+			break
+		}
+	}
+	if _j < 0 {
+		http.Error(w, "没有权限访问", http.StatusInternalServerError)
+		return
+	}
+	//fmt.Println("=====", _pathSlice[0:_j])
+	_pathSlice = _pathSlice[0:_j]
+	_path = "/" + strings.Trim(strings.Join(_pathSlice, "/"), "/") + "/"
+	fmt.Println("path : ", _path)
+	if strings.Contains(_path, "../") {
+		http.Error(w, "没有权限访问", http.StatusInternalServerError)
+		return
+	}
+	fileInfoArr, err := ioutil.ReadDir(UPLOAD_DIR + _path)
 	if err != nil {
-		http.Error(w, err.Error(), http.StatusInternalServerError)
+		//http.Error(w, err.Error(), http.StatusInternalServerError)
+		http.Error(w, "目录不存在", http.StatusInternalServerError)
 		return
 	}
 	locals := make(map[string]interface{})
