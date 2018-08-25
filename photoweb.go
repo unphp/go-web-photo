@@ -14,7 +14,7 @@ import (
 )
 
 const (
-	UPLOAD_DIR = "/home/xiao/图片"
+	UPLOAD_DIR = "/home/papa/shared"
 )
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
