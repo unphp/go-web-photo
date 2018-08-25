@@ -1,6 +1,7 @@
 package main
 
 import (
+	"bytes"
 	"fmt"
 	"html/template"
 	"io"
@@ -9,10 +10,11 @@ import (
 	"net/http"
 	"os"
 	"strings"
+	"time"
 )
 
 const (
-	UPLOAD_DIR = "/home/xiao/document"
+	UPLOAD_DIR = "/home/xiao/图片"
 )
 
 func uploadHandler(w http.ResponseWriter, r *http.Request) {
@@ -56,6 +58,29 @@ func uploadHandler(w http.ResponseWriter, r *http.Request) {
 	   }
 	*/
 }
+
+func smallHandle(w http.ResponseWriter, r *http.Request) {
+	imageId := r.FormValue("id")
+	imagePath := UPLOAD_DIR + "/" + imageId
+	if exists := isExists(imagePath); !exists {
+		http.NotFound(w, r)
+		return
+	}
+	imagePathSlice := strings.Split(imagePath, "/")
+	//返回图片流
+	img := &Img{
+		SrcImgFile: imagePath,
+	}
+	var x, y int = 150, 100
+	if b, err := img.CreateSmall(x, y); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+	} else {
+		w.Header().Set("Content-Type", "image")
+		//http.ServeFile(w, r, imagePath)
+		http.ServeContent(w, r, imagePathSlice[len(imagePathSlice)-1], time.Now(), bytes.NewReader(b))
+	}
+}
+
 func viewHandle(w http.ResponseWriter, r *http.Request) {
 
 	imageId := r.FormValue("id")
@@ -126,21 +151,21 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 		_nameSlice := strings.Split(_name, ".")
 		switch _nameSlice[len(_nameSlice)-1] {
 		case "jpg":
-			images = append(images, map[string]string{"url": "/view?id=" + _path + _name, "name": _name})
+			images = append(images, map[string]string{"smallUrl": "/viewSmall?id=" + _path + _name, "url": "/view?id=" + _path + _name, "name": _name})
 		case "JPG":
-			images = append(images, map[string]string{"url": "/view?id=" + _path + _name, "name": _name})
+			images = append(images, map[string]string{"smallUrl": "/viewSmall?id=" + _path + _name, "url": "/view?id=" + _path + _name, "name": _name})
 		case "png":
-			images = append(images, map[string]string{"url": "/view?id=" + _path + _name, "name": _name})
+			images = append(images, map[string]string{"smallUrl": "/viewSmall?id=" + _path + _name, "url": "/view?id=" + _path + _name, "name": _name})
 		case "PNG":
-			images = append(images, map[string]string{"url": "/view?id=" + _path + _name, "name": _name})
+			images = append(images, map[string]string{"smallUrl": "/viewSmall?id=" + _path + _name, "url": "/view?id=" + _path + _name, "name": _name})
 		case "gif":
-			images = append(images, map[string]string{"url": "/view?id=" + _path + _name, "name": _name})
+			images = append(images, map[string]string{"smallUrl": "/viewSmall?id=" + _path + _name, "url": "/view?id=" + _path + _name, "name": _name})
 		case "GIF":
-			images = append(images, map[string]string{"url": "/view?id=" + _path + _name, "name": _name})
+			images = append(images, map[string]string{"smallUrl": "/viewSmall?id=" + _path + _name, "url": "/view?id=" + _path + _name, "name": _name})
 		case "bmp":
-			images = append(images, map[string]string{"url": "/view?id=" + _path + _name, "name": _name})
+			images = append(images, map[string]string{"smallUrl": "/viewSmall?id=" + _path + _name, "url": "/view?id=" + _path + _name, "name": _name})
 		case "BMP":
-			images = append(images, map[string]string{"url": "/view?id=" + _path + _name, "name": _name})
+			images = append(images, map[string]string{"smallUrl": "/viewSmall?id=" + _path + _name, "url": "/view?id=" + _path + _name, "name": _name})
 		default:
 			if fileInfo.IsDir() {
 				files = append(files, map[string]string{"url": "/list?id=" + _path + _name, "name": _name})
@@ -162,6 +187,7 @@ func listHandler(w http.ResponseWriter, r *http.Request) {
 func main() {
 
 	http.HandleFunc("/upload", uploadHandler)
+	http.HandleFunc("/viewSmall", smallHandle)
 	http.HandleFunc("/view", viewHandle)
 	http.HandleFunc("/", listHandler)
 	err := http.ListenAndServe(":9010", nil)
