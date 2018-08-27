@@ -9,6 +9,8 @@
 package main
 
 import (
+	"fmt"
+
 	"code.google.com/p/graphics-go/graphics"
 	"golang.org/x/image/bmp"
 	//"code.google.com/p/graphics-go/graphics/interp"
@@ -66,11 +68,19 @@ func (this *Img) CreateSmall(x, y int) (b []byte, err error) {
 	switch imgType := this.getType(); imgType {
 	case "png":
 		return this.png(srcF, x, y)
+	case "PNG":
+		return this.png(srcF, x, y)
 	case "jpg":
+		return this.jpg(srcF, x, y)
+	case "JPG":
 		return this.jpg(srcF, x, y)
 	case "bmp":
 		return this.bmp(srcF, x, y)
+	case "BMP":
+		return this.bmp(srcF, x, y)
 	case "gif":
+		return this.gif(srcF, x, y)
+	case "GIF":
 		return this.gif(srcF, x, y)
 	}
 	return
@@ -190,13 +200,18 @@ func (this *Img) jpg(srcF *os.File, x, y int) (b []byte, err error) {
 	oldY := oldImg.Bounds().Dy()
 	oldX := oldImg.Bounds().Dx()
 	tX, tY := 0, 0
+	//
 	if x > 0 && y > 0 {
 		if (x * oldY / oldX) > y {
 			tX = y * oldX / oldY
 			tY = y
+			fmt.Println("sss")
+			//x = tX
 		} else {
 			tX = x
 			tY = x * oldY / oldX
+			fmt.Println("aaa")
+			//y = tY
 		}
 	} else {
 		if x <= 0 {
@@ -209,8 +224,9 @@ func (this *Img) jpg(srcF *os.File, x, y int) (b []byte, err error) {
 			y = tY
 		}
 	}
+	//fmt.Println(x, y, tX, tY, oldX, oldY)
 	newImg := image.NewRGBA(image.Rect(0, 0, tX, tY)) //
-
+	//graphics.Rotate(newImg, oldImg, &graphics.RotateOptions{Angle: 90}) //缩略图
 	graphics.Scale(newImg, oldImg) //缩略图
 
 	outImg := image.NewRGBA(image.Rect(0, 0, x, y)) //
